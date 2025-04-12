@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 mod color;
+mod hittable;
 mod ray;
 mod vec3;
 
@@ -11,7 +12,7 @@ use vec3::{Point3, Vec3, dot};
 fn main() {
     // image
     let aspect_ratio = 16.0 / 9.0; // compute height via aspect ratio
-    let image_width = 400;
+    let image_width = 1440;
     let ar_height = (image_width as f64 / aspect_ratio) as i32;
     let image_height = if ar_height < 1 { 1 } else { ar_height };
 
@@ -53,19 +54,25 @@ fn main() {
     eprint!("\rDone.                       \n");
 }
 
-fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> bool {
+fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> f64 {
     let oc: Vec3 = *center - r.origin();
     let a = dot(&r.direction(), &r.direction());
     let b = -2.0 * dot(&r.direction(), &oc);
     let c = dot(&oc, &oc) - radius * radius;
     let discriminant = b * b - 4 as f64 * a * c;
 
-    discriminant >= 0.0
+    if discriminant < 0.0 {
+        return -1.0;
+    } else {
+        return (-b - discriminant.sqrt()) / (2.0 * a);
+    }
 }
 
 fn ray_color(ray: &Ray) -> Color {
-    if hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, ray) {
-        return Color::new(1.0, 0.0, 0.0);
+    let t = hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, ray);
+    if t > 0.0 {
+        let n = vec3::unit_vector(ray.at(t) - Vec3::new(0.0, 0.0, -1.0));
+        return 0.5 * Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0);
     }
 
     let unit_direction = vec3::unit_vector(ray.direction());

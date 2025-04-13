@@ -6,9 +6,26 @@ use crate::{
 };
 
 pub struct HitRecord {
-    pub p: Point3,
-    pub normal: Vec3,
-    pub t: f64,
+    p: Point3,
+    normal: Vec3,
+    t: f64,
+}
+
+impl HitRecord {
+    /// returns a HitRecord's point p
+    pub fn p(&self) -> Point3 {
+        self.p
+    }
+
+    /// returns a HitRecord's surface normal vector
+    pub fn normal(&self) -> Vec3 {
+        self.normal
+    }
+
+    /// returns a HitRecord's t parameter
+    pub fn t(&self) -> f64 {
+        self.t
+    }
 }
 
 pub trait Hittable {

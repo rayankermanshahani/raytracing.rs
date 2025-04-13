@@ -6,7 +6,7 @@ use std::ops::{
 /// a three-dimensional vector of f64
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
-    pub e: [f64; 3],
+    e: [f64; 3],
 }
 
 impl Vec3 {

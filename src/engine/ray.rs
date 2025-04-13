@@ -1,4 +1,4 @@
-use crate::vec3::{Point3, Vec3};
+use crate::engine::vec3::{Point3, Vec3};
 
 /// a semi-infinite line
 #[derive(Debug, Clone, Copy)]

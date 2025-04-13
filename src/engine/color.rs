@@ -1,4 +1,4 @@
-use crate::vec3::Vec3;
+use crate::engine::vec3::Vec3;
 use std::io::Write;
 
 pub type Color = Vec3;

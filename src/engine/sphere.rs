@@ -1,7 +1,7 @@
-use crate::{
+use crate::engine::{
     hittable::{HitRecord, Hittable},
     ray::Ray,
-    vec3::{self, Point3, Vec3},
+    vec3::{self, Point3},
 };
 
 #[derive(Debug, Clone, Copy)]

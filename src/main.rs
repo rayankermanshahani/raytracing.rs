@@ -1,14 +1,17 @@
 #![allow(dead_code)]
-mod color;
-mod hittable;
-mod ray;
-mod sphere;
-mod vec3;
 
-use color::Color;
-use ray::Ray;
+use raytracing_rs::engine::{
+    color::{self, Color},
+    ray::Ray,
+    vec3::{self, Point3, Vec3},
+};
+
 use std::io::{self, Write};
-use vec3::{Point3, Vec3, dot};
+
+// use color::Color;
+// use ray::Ray;
+// use std::io::{self, Write};
+// use vec3::{Point3, Vec3, dot};
 
 fn main() {
     // image
@@ -59,7 +62,7 @@ fn main() {
 fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> f64 {
     let oc: Vec3 = *center - ray.origin();
     let a = ray.direction().length_squared();
-    let h = dot(&ray.direction(), &oc);
+    let h = vec3::dot(&ray.direction(), &oc);
     let c = oc.length_squared() - radius * radius;
     let discriminant = h * h - a * c;
 

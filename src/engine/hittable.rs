@@ -1,6 +1,6 @@
 // src/hittable.rs
 
-use crate::{
+use crate::engine::{
     ray::Ray,
     vec3::{Point3, Vec3},
 };

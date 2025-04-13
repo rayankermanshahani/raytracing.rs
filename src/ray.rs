@@ -23,6 +23,16 @@ impl Ray {
         self.direction
     }
 
+    /// sets ray's origin point
+    pub fn set_origin(&mut self, origin: Point3) {
+        self.origin = origin;
+    }
+
+    /// sets ray's direction vector
+    pub fn set_direction(&mut self, direction: Vec3) {
+        self.direction = direction;
+    }
+
     /// returns the 3d point on the 2d ray at parameter t
     pub fn at(&self, t: f64) -> Point3 {
         self.origin + t * self.direction

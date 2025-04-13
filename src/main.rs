@@ -2,6 +2,7 @@
 mod color;
 mod hittable;
 mod ray;
+mod sphere;
 mod vec3;
 
 use color::Color;
@@ -54,24 +55,29 @@ fn main() {
     eprint!("\rDone.                       \n");
 }
 
-fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> f64 {
-    let oc: Vec3 = *center - r.origin();
-    let a = dot(&r.direction(), &r.direction());
-    let b = -2.0 * dot(&r.direction(), &oc);
-    let c = dot(&oc, &oc) - radius * radius;
-    let discriminant = b * b - 4 as f64 * a * c;
+// ray-sphere intersection
+fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> f64 {
+    let oc: Vec3 = *center - ray.origin();
+    let a = ray.direction().length_squared();
+    let h = dot(&ray.direction(), &oc);
+    let c = oc.length_squared() - radius * radius;
+    let discriminant = h * h - a * c;
 
     if discriminant < 0.0 {
         return -1.0;
     } else {
-        return (-b - discriminant.sqrt()) / (2.0 * a);
+        // only using the closest (smallest t) hitpoint for now
+        return (h - discriminant.sqrt()) / a;
     }
 }
 
 fn ray_color(ray: &Ray) -> Color {
+    // define the sphere
     let t = hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, ray);
     if t > 0.0 {
+        // find the surface normal (unit vector)
         let n = vec3::unit_vector(ray.at(t) - Vec3::new(0.0, 0.0, -1.0));
+        // each component of surface normal coresponds to a color (x: red, y: green, z: blue)
         return 0.5 * Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0);
     }
 

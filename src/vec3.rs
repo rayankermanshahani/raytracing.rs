@@ -33,6 +33,20 @@ impl Vec3 {
         self.e[2]
     }
 
+    /// sets x component
+    pub fn set_x(&mut self, x: f64) {
+        self.e[0] = x;
+    }
+
+    /// sets y component
+    pub fn set_y(&mut self, y: f64) {
+        self.e[1] = y;
+    }
+    /// sets z component
+    pub fn set_z(&mut self, z: f64) {
+        self.e[2] = z;
+    }
+
     /// returns the squared length of the vector
     pub fn length_squared(&self) -> f64 {
         self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]

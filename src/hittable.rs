@@ -26,6 +26,19 @@ impl HitRecord {
     pub fn t(&self) -> f64 {
         self.t
     }
+
+    /// setter for HitRecord's point p
+    pub fn set_p(&mut self, p: Point3) {
+        self.p = p;
+    }
+    /// setter for HitRecord's surface normal vector
+    pub fn set_normal(&mut self, normal: Vec3) {
+        self.normal = normal;
+    }
+    /// setter for HitRecord's t parameter
+    pub fn set_t(&mut self, t: f64) {
+        self.t = t;
+    }
 }
 
 pub trait Hittable {

@@ -76,6 +76,8 @@ fn ray_color(ray: &Ray) -> Color {
     }
 
     let unit_direction = vec3::unit_vector(ray.direction());
+    // transform unit vector's range from [-1.0,1.0] to [0.0,1.0]
     let a = 0.5 * (unit_direction.y() + 1.0);
+    // background color is a gradient from blue (top) to white (bottom)
     (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
 }

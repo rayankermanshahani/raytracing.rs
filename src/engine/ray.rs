@@ -1,3 +1,5 @@
+// src/engine/ray.rs
+
 use crate::engine::vec3::{Point3, Vec3};
 
 /// a semi-infinite line

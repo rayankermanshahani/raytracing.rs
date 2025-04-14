@@ -1,3 +1,5 @@
+// src/main.rs
+
 #![allow(dead_code)]
 
 use raytracing_rs::engine::{

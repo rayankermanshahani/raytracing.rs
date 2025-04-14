@@ -1,3 +1,5 @@
+// src/engine/vec3.rs
+
 use std::fmt;
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,

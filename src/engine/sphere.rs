@@ -1,3 +1,5 @@
+// src/engine/sphere.rs
+
 use crate::engine::{
     hittable::{HitRecord, Hittable},
     ray::Ray,

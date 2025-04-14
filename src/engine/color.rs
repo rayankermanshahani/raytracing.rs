@@ -1,3 +1,5 @@
+// src/engine/color.rs
+
 use crate::engine::vec3::Vec3;
 use std::io::Write;
 

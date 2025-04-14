@@ -13,12 +13,12 @@ pub struct Vec3 {
 
 impl Vec3 {
     /// constructs new `Vec3` from given components
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
+    pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Vec3 { e: [x, y, z] }
     }
 
     /// constructs new `Vec3` with all components initialized to zero
-    pub fn zero() -> Self {
+    pub fn zero() -> Vec3 {
         Vec3 { e: [0.0, 0.0, 0.0] }
     }
 

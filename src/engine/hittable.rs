@@ -15,6 +15,16 @@ pub struct HitRecord {
 impl HitRecord {}
 
 impl HitRecord {
+    /// creates a new empty HitRecord
+    pub fn new() -> HitRecord {
+        HitRecord {
+            p: Point3::zero(),
+            normal: Vec3::zero(),
+            t: 0.0,
+            front_face: false,
+        }
+    }
+
     /// returns a HitRecord's point p
     pub fn p(&self) -> Point3 {
         self.p

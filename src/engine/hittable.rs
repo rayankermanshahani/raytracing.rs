@@ -5,14 +5,13 @@ use crate::engine::{
     vec3::{self, Point3, Vec3},
 };
 
+#[derive(Clone)]
 pub struct HitRecord {
     p: Point3,        // 3d point where ray intersects surface
     normal: Vec3,     // surface normal at intersection point
     t: f64,           // parametric distance along the ray where intersection occurs
     front_face: bool, // flag indicating whether ray hit from outside (true) or inside (false)
 }
-
-impl HitRecord {}
 
 impl HitRecord {
     /// creates a new empty HitRecord

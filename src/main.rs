@@ -5,6 +5,7 @@
 use raytracing_rs::engine::{
     color::{self, Color},
     ray::Ray,
+    utils::*,
     vec3::{self, Point3, Vec3},
 };
 

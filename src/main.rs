@@ -4,17 +4,16 @@
 
 use raytracing_rs::engine::{
     color::{self, Color},
+    hittable::{HitRecord, Hittable},
+    hittable_list::HittableList,
+    interval::Interval,
     ray::Ray,
-    utils::*,
+    sphere::Sphere,
+    utils::INFINITY,
     vec3::{self, Point3, Vec3},
 };
-
 use std::io::{self, Write};
-
-// use color::Color;
-// use ray::Ray;
-// use std::io::{self, Write};
-// use vec3::{Point3, Vec3, dot};
+use std::rc::Rc;
 
 fn main() {
     // image
@@ -42,6 +41,11 @@ fn main() {
         camera_center - Vec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
     let pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
+    // world
+    let mut world = HittableList::new();
+    world.add(Rc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5))); // gradient "sky"
+    world.add(Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0))); // green grass
+
     // render
     println!("P3\n{} {}\n255", image_width, image_height);
 
@@ -54,7 +58,7 @@ fn main() {
                 pixel00_loc + (i as f64 * pixel_delta_u) + (j as f64 * pixel_delta_v);
             let ray_direction = pixel_center - camera_center;
             let r = Ray::new(camera_center, ray_direction);
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(&r, &world);
             _ = color::write_color(&mut io::stdout(), pixel_color);
         }
     }
@@ -70,26 +74,26 @@ fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> f64 {
     let discriminant = h * h - a * c;
 
     if discriminant < 0.0 {
-        return -1.0;
+        -1.0
     } else {
         // only using the closest (smallest t) hitpoint for now
-        return (h - discriminant.sqrt()) / a;
+        (h - discriminant.sqrt()) / a
     }
 }
 
-fn ray_color(ray: &Ray) -> Color {
+fn ray_color(ray: &Ray, world: &dyn Hittable) -> Color {
     // define the sphere
-    let t = hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, ray);
-    if t > 0.0 {
-        // find the surface normal (unit vector)
-        let n = vec3::unit_vector(ray.at(t) - Vec3::new(0.0, 0.0, -1.0));
-        // each component of surface normal coresponds to a color (x: red, y: green, z: blue)
-        return 0.5 * Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0);
+    let mut rec = HitRecord::new();
+
+    // if we hit anything in [0, ∞)
+    if world.hit(ray, Interval::new(0.0, INFINITY), &mut rec) {
+        return 0.5 * (rec.normal() + Color::new(1.0, 1.0, 1.0));
     }
 
+    // otherwise background gradient
     let unit_direction = vec3::unit_vector(ray.direction());
     // transform unit vector's range from [-1.0,1.0] to [0.0,1.0]
-    let a = 0.5 * (unit_direction.y() + 1.0);
+    let t = 0.5 * (unit_direction.y() + 1.0);
     // background color is a gradient from blue (top) to white (bottom)
-    (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+    (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }

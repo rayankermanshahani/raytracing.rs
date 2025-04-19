@@ -6,6 +6,8 @@ use crate::engine::{
     vec3::{self, Point3},
 };
 
+use super::interval::Interval;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Sphere {
     center: Point3,
@@ -43,7 +45,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, ray_tmin: f64, ray_tmax: f64, rec: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
         let oc = self.center - ray.origin();
         let a = ray.direction().length_squared();
         let h = vec3::dot(&ray.direction(), &oc);
@@ -57,9 +59,9 @@ impl Hittable for Sphere {
 
         // find nearest root that lies in acceptable range
         let root = (h - sqrt_discriminant) / a;
-        if root <= ray_tmin || ray_tmax <= root {
+        if !(ray_t.surrounds(root)) {
             let other_root = (h + sqrt_discriminant) / a;
-            if other_root <= ray_tmin || ray_tmax <= other_root {
+            if !(ray_t.surrounds(other_root)) {
                 return false;
             }
         }

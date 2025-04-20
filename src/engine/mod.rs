@@ -1,6 +1,7 @@
 // src/engine/mod.rs
 
 // declare submodules
+pub mod camera;
 pub mod color;
 pub mod hittable;
 pub mod hittable_list;

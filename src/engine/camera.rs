@@ -5,7 +5,7 @@ use crate::engine::{
     hittable::{HitRecord, Hittable},
     interval::Interval,
     ray::Ray,
-    utils::INFINITY,
+    utils::{self, INFINITY},
     vec3::{self, Point3, Vec3},
 };
 use std::io::{self, Write};
@@ -13,15 +13,17 @@ use std::io::{self, Write};
 #[derive(Default, Clone, Copy)]
 pub struct Camera {
     // private camera parameters
-    image_height: i32,   // rendered image height in pixel count
-    center: Point3,      // camera center
-    pixel00_loc: Point3, // location of pixel 0,0
-    pixel_delta_u: Vec3, // offset to pixel to the right
-    pixel_delta_v: Vec3, // offset to pixel below
+    image_height: i32,        // rendered image height in pixel count
+    center: Point3,           // camera center
+    pixel00_loc: Point3,      // location of pixel 0,0
+    pixel_delta_u: Vec3,      // offset to pixel to the right
+    pixel_delta_v: Vec3,      // offset to pixel below
+    pixel_samples_scale: f64, // color scale factor for a sum of pixels
 
     // public camera parameters
-    pub aspect_ratio: f64, // ratio of image width over height
-    pub image_width: i32,  // rendered image width in pixel count
+    pub aspect_ratio: f64,      // ratio of image width over height
+    pub image_width: i32,       // rendered image width in pixel count
+    pub samples_per_pixel: i32, // count of random samples for each pixel
 }
 
 impl Camera {
@@ -29,6 +31,8 @@ impl Camera {
     fn initialize(&mut self) {
         let ar_height = (self.image_width as f64 / self.aspect_ratio) as i32;
         self.image_height = if ar_height < 1 { 1 } else { ar_height };
+
+        self.pixel_samples_scale = 1.0 / self.samples_per_pixel as f64;
 
         self.center = Point3::zero();
 
@@ -62,6 +66,28 @@ impl Camera {
         (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
     }
 
+    /// construct a camera ray originating from the origin and directed at randomly sampled piont around the pixel location i,j
+    fn get_ray(&self, i: i32, j: i32) -> Ray {
+        let offset = self.sample_square();
+        let pixel_sample = self.pixel00_loc
+            + ((i as f64 + offset.x()) * self.pixel_delta_u)
+            + ((j as f64 + offset.y()) * self.pixel_delta_v);
+
+        let ray_origin = self.center;
+        let ray_direction = pixel_sample - ray_origin;
+
+        Ray::new(ray_origin, ray_direction)
+    }
+
+    /// returns the vector to a random point in the [-0.5,-0.5] to [0.5,0.5] unit square
+    fn sample_square(&self) -> Vec3 {
+        Vec3::new(
+            utils::random_0_to_1() - 0.5,
+            utils::random_0_to_1() - 0.5,
+            0.0,
+        )
+    }
+
     // public camera functions
     pub fn render(&mut self, world: &dyn Hittable) {
         self.initialize();
@@ -73,13 +99,12 @@ impl Camera {
             eprint!("\rScanlines remaining: {}", self.image_height - j);
             io::stderr().flush().unwrap();
             for i in 0..self.image_width {
-                let pixel_center = self.pixel00_loc
-                    + (i as f64 * self.pixel_delta_u)
-                    + (j as f64 * self.pixel_delta_v);
-                let ray_direction = pixel_center - self.center;
-                let r = Ray::new(self.center, ray_direction);
-                let pixel_color = self.ray_color(&r, world);
-                _ = color::write_color(&mut io::stdout(), pixel_color);
+                let mut pixel_color: Color = Color::new(0.0, 0.0, 0.0);
+                for _ in 0..self.samples_per_pixel {
+                    let r = self.get_ray(i, j);
+                    pixel_color += self.ray_color(&r, world);
+                }
+                _ = color::write_color(&mut io::stdout(), self.pixel_samples_scale * pixel_color);
             }
         }
         eprint!("\rDone.                      \n");

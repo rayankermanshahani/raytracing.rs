@@ -5,6 +5,8 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
+use crate::engine::utils::{random_0_to_1, random_min_to_max};
+
 /// a three-dimensional vector of f64
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
@@ -20,6 +22,24 @@ impl Vec3 {
     /// constructs new `Vec3` with all components initialized to zero
     pub fn zero() -> Vec3 {
         Vec3 { e: [0.0, 0.0, 0.0] }
+    }
+
+    /// constructs a new `Vec3` with random valued components
+    pub fn random() -> Vec3 {
+        Vec3 {
+            e: [random_0_to_1(), random_0_to_1(), random_0_to_1()],
+        }
+    }
+
+    /// constructs a new `Vec3` with random valued components within a specified range
+    pub fn random_in_range(min: f64, max: f64) -> Vec3 {
+        Vec3 {
+            e: [
+                random_min_to_max(min, max),
+                random_min_to_max(min, max),
+                random_min_to_max(min, max),
+            ],
+        }
     }
 
     /// returns x component
@@ -89,6 +109,7 @@ impl IndexMut<usize> for Vec3 {
 impl Add for Vec3 {
     type Output = Vec3;
 
+    #[inline(always)]
     fn add(self, rhs: Vec3) -> Vec3 {
         Vec3::new(
             self.e[0] + rhs.e[0],
@@ -100,6 +121,7 @@ impl Add for Vec3 {
 
 // elementwise addition assignment: Vec3 += Vec3
 impl AddAssign for Vec3 {
+    #[inline(always)]
     fn add_assign(&mut self, rhs: Self) {
         self.e[0] += rhs.e[0];
         self.e[1] += rhs.e[1];
@@ -111,6 +133,7 @@ impl AddAssign for Vec3 {
 impl Sub for Vec3 {
     type Output = Vec3;
 
+    #[inline(always)]
     fn sub(self, rhs: Self) -> Vec3 {
         Vec3::new(
             self.e[0] - rhs.e[0],
@@ -122,6 +145,7 @@ impl Sub for Vec3 {
 
 // elementwise subtraction assignment: Vec3 -= Vec3
 impl SubAssign for Vec3 {
+    #[inline(always)]
     fn sub_assign(&mut self, rhs: Self) {
         self.e[0] -= rhs.e[0];
         self.e[1] -= rhs.e[1];
@@ -132,6 +156,7 @@ impl SubAssign for Vec3 {
 // element-wise multiplication: Vec3 * Vec3
 impl Mul for Vec3 {
     type Output = Vec3;
+    #[inline(always)]
     fn mul(self, rhs: Vec3) -> Vec3 {
         Vec3::new(
             self.e[0] * rhs.e[0],
@@ -144,6 +169,7 @@ impl Mul for Vec3 {
 // scalar multiplication: Vec3 * f64
 impl Mul<f64> for Vec3 {
     type Output = Vec3;
+    #[inline(always)]
     fn mul(self, scalar: f64) -> Vec3 {
         Vec3::new(self.e[0] * scalar, self.e[1] * scalar, self.e[2] * scalar)
     }
@@ -153,6 +179,7 @@ impl Mul<f64> for Vec3 {
 impl Mul<Vec3> for f64 {
     type Output = Vec3;
 
+    #[inline(always)]
     fn mul(self, v: Vec3) -> Vec3 {
         v * self
     }
@@ -160,6 +187,7 @@ impl Mul<Vec3> for f64 {
 
 // scalar multiplication assignment: Vec3 *= f64
 impl MulAssign<f64> for Vec3 {
+    #[inline(always)]
     fn mul_assign(&mut self, rhs: f64) {
         self.e[0] *= rhs;
         self.e[1] *= rhs;
@@ -171,6 +199,7 @@ impl MulAssign<f64> for Vec3 {
 impl Div<f64> for Vec3 {
     type Output = Vec3;
 
+    #[inline(always)]
     fn div(self, rhs: f64) -> Vec3 {
         self * (1.0 / rhs)
     }
@@ -178,6 +207,7 @@ impl Div<f64> for Vec3 {
 
 // scalar division assignment: Vec3 /= f64
 impl DivAssign<f64> for Vec3 {
+    #[inline(always)]
     fn div_assign(&mut self, rhs: f64) {
         *self *= 1.0 / rhs;
     }
@@ -185,6 +215,7 @@ impl DivAssign<f64> for Vec3 {
 
 // pretty printing using `{}` formatter
 impl fmt::Display for Vec3 {
+    #[inline(always)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} {} {}", self.e[0], self.e[1], self.e[2])
     }
@@ -197,11 +228,13 @@ impl Default for Vec3 {
 }
 
 /// returns the dot product of two `Vec3` instances
+#[inline(always)]
 pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
     u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
 }
 
 /// returns the cross product of two `Vec3` instances
+#[inline(always)]
 pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
     Vec3::new(
         u.e[1] * v.e[2] - u.e[2] * v.e[1],
@@ -211,6 +244,19 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
 }
 
 /// returns the (normalized) unit vector of a given `Vec3`
+#[inline(always)]
 pub fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
+}
+
+/// creates and returns a random unit vector
+#[inline(always)]
+pub fn random_unit_vector() -> Vec3 {
+    loop {
+        let p = Vec3::random_in_range(-1.0, 1.0);
+        let lensq = p.length_squared();
+        if 1e-160 < lensq && lensq <= 1.0 {
+            return p / lensq.sqrt();
+        }
+    }
 }

@@ -58,18 +58,27 @@ impl Hittable for Sphere {
         let sqrt_discriminant = discriminant.sqrt();
 
         // find nearest root that lies in acceptable range
-        let root = (h - sqrt_discriminant) / a;
-        if !(ray_t.surrounds(root)) {
-            let other_root = (h + sqrt_discriminant) / a;
-            if !(ray_t.surrounds(other_root)) {
-                return false;
-            }
+        let root1 = (h - sqrt_discriminant) / a;
+        if ray_t.contains(root1) {
+            // check smaller root first
+            rec.set_t(root1);
+            rec.set_p(ray.at(rec.t()));
+            let outward_normal = (rec.p() - self.center()) / self.radius();
+            rec.set_face_normal(ray, &outward_normal);
+            return true;
         }
-        rec.set_t(root);
-        rec.set_p(ray.at(rec.t()));
-        let outward_normal = (rec.p() - self.center()) / self.radius();
-        rec.set_face_normal(ray, &outward_normal);
 
-        return true;
+        // if smaller root is invalid, check larger root
+        let root2 = (h + sqrt_discriminant) / a;
+        if ray_t.contains(root2) {
+            rec.set_t(root2);
+            rec.set_p(ray.at(rec.t()));
+            let outward_normal = (rec.p() - self.center()) / self.radius();
+            rec.set_face_normal(ray, &outward_normal);
+            return true;
+        }
+
+        // neither root is in valid interval
+        return false;
     }
 }
